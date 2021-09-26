@@ -1,0 +1,444 @@
+!    -*- f90 -*-
+! Note: the context of this file is case sensitive.
+
+python module lmbm__user__routines 
+    interface lmbm_user_interface
+        function func(n,x) result (fu)
+            integer, intent(inout) :: n
+            real(kind=8), intent(inout) :: x(n)
+            real(kind=8), intent(inout) :: fu
+        end function func
+        function vali(n,x) result (lopa)
+            integer, intent(inout) :: n
+            real(kind=8), intent(inout) :: x(n)
+            real(kind=8), intent(inout) :: lopa
+        end function vali
+        subroutine subgra(n,x,g)
+            integer, intent(inout) :: n
+            real(kind=8), intent(inout) :: x(n)
+            real(kind=8), intent(inout) :: g(n)
+        end subroutine subgra
+    end interface lmbm_user_interface
+end python module lmbm__user__routines
+python module lmbmprogram
+    interface
+        module r_precision
+            integer, public,parameter,optional :: prec=selected_real_kind(12)
+        end module r_precision
+        module param
+            use r_precision, only: prec
+            real(kind=8), public,parameter,optional :: large=3.40282347e+38
+            real(kind=8), public,parameter,optional :: zero=0.0_prec
+            integer, public,parameter,optional :: maxnrs=2000
+            integer, public,parameter,optional :: maxeps=20
+            real(kind=8), public,parameter,optional :: half=0.5_prec
+            real(kind=8), public,parameter,optional :: small=1.17549435e-38
+            real(kind=8), public,parameter,optional :: one=1.0_prec
+        end module param
+        module initializat
+            use r_precision, only: prec
+            use param, only: large,small
+            real(kind=8), save,optional :: tolf2=1.0E+4_prec
+            real(kind=8), save,optional :: epsl=1.0E-4_prec
+            integer, save,optional :: mfe=500000
+            integer, parameter,optional :: na=2
+            integer, parameter,optional :: mcinit=7
+            real(kind=8), save,optional :: tolf=1.0E-7_prec
+            real(kind=8), save,optional :: eta=0.5_prec
+            real(kind=8), save,optional :: xmax=2_prec
+            integer, save,optional :: iscale=0
+            real(kind=8), save,optional :: tolb=-3.40282347E+38
+            integer, parameter,optional :: mcu=15
+            real(kind=8), save,optional :: tolg=1.0E-7_prec
+            integer, save,optional :: mit=100000
+            integer, save,optional :: mtesf=10
+            real(kind=8), save,optional :: tolg2=1.0E-6_prec
+        end module initializat
+        module lmbm_sub
+            use r_precision, only: prec
+            function vdot(n,x,y) result (xty)
+                use param, only: zero
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(y)==n) :: y
+                real(kind=8) :: xty
+            end function vdot
+            subroutine vneg(n,x,y)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(y)==n) :: y
+            end subroutine vneg
+            subroutine scalex(n,a,x,y)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), intent(in) :: a
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(y)==n) :: y
+            end subroutine scalex
+            subroutine xdiffy(n,x,y,z)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(y)==n) :: y
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(z)==n) :: z
+            end subroutine xdiffy
+            subroutine xsumy(n,x,y,z)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(y)==n) :: y
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(z)==n) :: z
+            end subroutine xsumy
+            subroutine scdiff(n,a,x,y,z)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), intent(in) :: a
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(y)==n) :: y
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(z)==n) :: z
+            end subroutine scdiff
+            subroutine scsum(n,a,x,y,z)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), intent(in) :: a
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(y)==n) :: y
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(z)==n) :: z
+            end subroutine scsum
+            subroutine copy(n,x,y)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(y)==n) :: y
+            end subroutine copy
+            subroutine copy2(n,x,y,z,v)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(y)==n) :: y
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(z)==n) :: z
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(v)==n) :: v
+            end subroutine copy2
+            subroutine vxdiag(n,d,x,y)
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(d)==n) :: d
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(y)==n) :: y
+            end subroutine vxdiag
+            subroutine symax(n,m,iold,a,x,y)
+                use param, only: zero
+                integer, intent(in), depend(a), check(len(a)==n*(n+1)/2) :: n
+                integer, intent(in), depend(x), check(len(x)==m) :: m=len(x)
+                integer, intent(in) :: iold
+                real(kind=8), dimension(n*(n+1)/2), intent(in) :: a
+                real(kind=8), dimension(m), intent(in) :: x
+                real(kind=8), dimension(m), intent(out), depend(m), check(len(y)==m) :: y
+            end subroutine symax
+            subroutine cwmaxv(n,m,a,x,y)
+                use param, only: zero
+                integer, intent(in), depend(a), check(len(a)==n*m) :: n
+                integer, intent(in), depend(x), check(len(x)==m) :: m=len(x)
+                real(kind=8), dimension(n*m), intent(in) :: a
+                real(kind=8), dimension(m), intent(in) :: x
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(y)==n) :: y
+            end subroutine cwmaxv
+            subroutine rwaxv2(n,m,a,b,x,y,v,w)
+                use param, only: zero
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                integer, intent(in), depend(a), check(len(a)==n*m) :: m
+                real(kind=8), dimension(n*m), intent(in) :: a
+                real(kind=8), dimension(n*m), intent(in), depend(n,m), check(len(b)==n*m) :: b
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(y)==n) :: y
+                real(kind=8), dimension(m), intent(out), depend(m), check(len(v)==m) :: v
+                real(kind=8), dimension(m), intent(out), depend(m), check(len(w)==m) :: w
+            end subroutine rwaxv2
+            subroutine trlieq(n,m,iold,u,x,y,job,ierr)
+                use param, only: small
+                integer, intent(in), depend(u), check(len(u)==n) :: n=len(u)
+                integer, intent(in), depend(y), check(len(y)==m) :: m=len(y)
+                integer, intent(in) :: iold
+                real(kind=8), dimension(n), intent(in) :: u
+                real(kind=8), dimension(m), intent(out), depend(m), check(len(x)==m) :: x
+                real(kind=8), dimension(m), intent(in) :: y
+                integer, intent(in) :: job
+                integer, intent(out) :: ierr
+            end subroutine trlieq
+            subroutine lineq(n,m,iold,a,x,y,ierr)
+                use param, only: small
+                integer, intent(in), depend(a), check(len(a)==n) :: n=len(a)
+                integer, intent(in), depend(y), check(len(y)==m) :: m=len(y)
+                integer, intent(in) :: iold
+                real(kind=8), dimension(n), intent(in) :: a
+                real(kind=8), dimension(m), intent(out), depend(m), check(len(x)==m) :: x
+                real(kind=8), dimension(m), intent(in) :: y
+                integer, intent(out) :: ierr
+            end subroutine lineq
+            subroutine mxdpgf(n,a,inf,alf,tau)
+                use param, only: zero,one
+                integer, intent(in), depend(a), check(len(a)==n) :: n=len(a)
+                real(kind=8), dimension(n), intent(inout) :: a
+                integer, intent(out) :: inf
+                real(kind=8), intent(inout) :: alf
+                real(kind=8), intent(out) :: tau
+            end subroutine mxdpgf
+            subroutine calq(n,m,iold,a,x,y)
+                use param, only: small
+                integer, intent(in), depend(a), check(len(a)==n) :: n=len(a)
+                integer, intent(in), depend(y), check(len(y)==m) :: m=len(y)
+                integer, intent(in) :: iold
+                real(kind=8), dimension(n), intent(inout) :: a
+                real(kind=8), dimension(m), intent(out), depend(m), check(len(x)==m) :: x
+                real(kind=8), dimension(m), intent(in) :: y
+            end subroutine calq
+        end module lmbm_sub
+        module lmbm_mod
+            use r_precision, only: prec
+            subroutine init_lmbm(n,mc,iterm)
+                use initializat, only: epsl,mtesf,eta,na,mfe,mit,tolg,xmax,iscale,tolb,mcu,tolf2,tolf,tolg2
+                use param, only: small,large,zero,half
+                integer, intent(in) :: n
+                integer, intent(inout) :: mc
+                integer, intent(out) :: iterm
+            end subroutine init_lmbm
+            subroutine restar(n,mc,mcc,mcinit,inew,ibun,ibfgs,iters,gp,g,nnk,alfv,alfn,gamma,d,ic,icn,mal,ncres,iflag)
+                use param, only: zero,one
+                use lmbm_sub, only: vneg,copy
+                integer, intent(in), depend(gp), check(len(gp)==n) :: n=len(gp)
+                integer, intent(out) :: mc
+                integer, intent(out) :: mcc
+                integer, intent(in) :: mcinit
+                integer, intent(out) :: inew
+                integer, intent(out) :: ibun
+                integer, intent(out) :: ibfgs
+                integer, intent(inout) :: iters
+                real(kind=8), dimension(n), intent(in) :: gp
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(g)==n) :: g
+                integer, intent(out) :: nnk
+                real(kind=8), intent(out) :: alfv
+                real(kind=8), intent(out) :: alfn
+                real(kind=8), intent(out) :: gamma
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(d)==n) :: d
+                integer, intent(out) :: ic
+                integer, intent(out) :: icn
+                integer, intent(out) :: mal
+                integer, intent(inout) :: ncres
+                integer, intent(out) :: iflag
+            end subroutine restar
+            subroutine dobun(n,ma,mal,x,g,fu,ay,ag,af,iters,ibun)
+                use lmbm_sub, only: copy2
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                integer, intent(in), depend(af), check(len(af)==ma) :: ma=len(af)
+                integer, intent(inout) :: mal
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(g)==n) :: g
+                real(kind=8), intent(in) :: fu
+                real(kind=8), dimension(n*ma), intent(inout), depend(n,ma), check(len(ay)==n*ma) :: ay
+                real(kind=8), dimension(n*ma), intent(inout), depend(n,ma), check(len(ag)==n*ma) :: ag
+                real(kind=8), dimension(ma), intent(inout) :: af
+                integer, intent(in) :: iters
+                integer, intent(inout) :: ibun
+            end subroutine dobun
+            subroutine destep(n,ma,mal,x,af,ag,ay,ibun,d,fu,df,t,eta,iterm)
+                use param, only: zero,half,one,large
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                integer, intent(in), depend(af), check(len(af)==ma) :: ma=len(af)
+                integer, intent(in) :: mal
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(ma), intent(in) :: af
+                real(kind=8), dimension(n*ma), intent(in), depend(n,ma), check(len(ag)==n*ma) :: ag
+                real(kind=8), dimension(n*ma), intent(in), depend(n,ma), check(len(ay)==n*ma) :: ay
+                integer, intent(in) :: ibun
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(d)==n) :: d
+                real(kind=8), intent(in) :: fu
+                real(kind=8), intent(in) :: df
+                real(kind=8), intent(inout) :: t
+                real(kind=8), intent(in) :: eta
+                integer, intent(out) :: iterm
+            end subroutine destep
+            subroutine nulstep(n,ma,mal,x,af,ag,ay,ibun,d,fu,df,t,eta,iterm)
+                use param, only: zero,one,large
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                integer, intent(in), depend(af), check((len(af))/4==ma) :: ma=(len(af))/4
+                integer, intent(in) :: mal
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(4*ma), intent(in) :: af
+                real(kind=8), dimension(n*ma), intent(in), depend(n,ma), check(len(ag)==n*ma) :: ag
+                real(kind=8), dimension(n*ma), intent(in), depend(n,ma), check(len(ay)==n*ma) :: ay
+                integer, intent(in) :: ibun
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(d)==n) :: d
+                real(kind=8), intent(in) :: fu
+                real(kind=8), intent(in) :: df
+                real(kind=8), intent(inout) :: t
+                real(kind=8), intent(in) :: eta
+                integer, intent(out) :: iterm
+            end subroutine nulstep
+            subroutine tinit(n,na,mal,x,af,ag,ay,ibun,d,fu,p,t,tmax,tmin,eta,iters,iterm)
+                use param, only: zero,one
+                integer, intent(in), depend(x), check(len(x)==n) :: n=len(x)
+                integer, intent(in), depend(af), check(len(af)==na) :: na=len(af)
+                integer, intent(in) :: mal
+                real(kind=8), dimension(n), intent(in) :: x
+                real(kind=8), dimension(na), intent(inout) :: af
+                real(kind=8), dimension(n*na), intent(in), depend(n,na), check(len(ag)==n*na) :: ag
+                real(kind=8), dimension(n*na), intent(in), depend(n,na), check(len(ay)==n*na) :: ay
+                integer, intent(in) :: ibun
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(d)==n) :: d
+                real(kind=8), intent(in) :: fu
+                real(kind=8), intent(in) :: p
+                real(kind=8), intent(out) :: t
+                real(kind=8), intent(in) :: tmax
+                real(kind=8), intent(in) :: tmin
+                real(kind=8), intent(in) :: eta
+                integer, intent(in) :: iters
+                integer, intent(out) :: iterm
+            end subroutine tinit
+            function qint(tu,fl,fuv,xnorm,kappa) result (t)
+                use param, only: one,half
+                real(kind=8), intent(in) :: tu
+                real(kind=8), intent(in) :: fl
+                real(kind=8), intent(in) :: fuv
+                real(kind=8), intent(in) :: xnorm
+                real(kind=8), intent(in) :: kappa
+                real(kind=8) :: t
+            end function qint
+            function sclpar(mcc,iscale,sts,stu,utu) result (spar)
+                use param, only: small,half,one
+                integer, intent(in) :: mcc
+                integer, intent(in) :: iscale
+                real(kind=8), intent(in) :: sts
+                real(kind=8), intent(in) :: stu
+                real(kind=8), intent(in) :: utu
+                real(kind=8) :: spar
+            end function sclpar
+            subroutine dlbfgs(n,mc,mcc,inew,ibfgs,iflag,d,g,gp,s,u,sm,um,rm,umtum,cm,smtgp,umtgp,gamma,tmpn1,iscale)
+                use param, only: zero,small,one
+                use lmbm_sub, only: vdot,vneg,xdiffy,xsumy,scdiff,scsum,vxdiag,symax,cwmaxv,rwaxv2,trlieq,copy2
+                integer, intent(in), depend(g), check(len(g)==n) :: n=len(g)
+                integer, intent(in) :: mc
+                integer, intent(inout), depend(cm), check(len(cm)-1==mcc) :: mcc=len(cm)-1
+                integer, intent(inout) :: inew
+                integer, intent(out) :: ibfgs
+                integer, intent(inout) :: iflag
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(d)==n) :: d
+                real(kind=8), dimension(n), intent(in) :: g
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(gp)==n) :: gp
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(s)==n) :: s
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(u)==n) :: u
+                real(kind=8), dimension(n*(mcc+1)), intent(inout), depend(n,mcc), check(len(sm)==n*(mcc+1)) :: sm
+                real(kind=8), dimension(n*(mcc+1)), intent(inout), depend(n,mcc), check(len(um)==n*(mcc+1)) :: um
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(inout), depend(mcc), check(len(rm)==(mcc+2)*(mcc+1)/2) :: rm
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(inout), depend(mcc), check(len(umtum)==(mcc+2)*(mcc+1)/2) :: umtum
+                real(kind=8), dimension(mcc+1), intent(inout) :: cm
+                real(kind=8), dimension(mcc+1), intent(inout), depend(mcc), check(len(smtgp)==mcc+1) :: smtgp
+                real(kind=8), dimension(mcc+1), intent(inout), depend(mcc), check(len(umtgp)==mcc+1) :: umtgp
+                real(kind=8), intent(inout) :: gamma
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(tmpn1)==n) :: tmpn1
+                integer, intent(in) :: iscale
+            end subroutine dlbfgs
+            subroutine dlsr1(n,mc,mcc,inew,isr1,iflag,d,gp,ga,s,u,sm,um,rm,umtum,cm,smtgp,umtgp,gamma,tmpmc1,tmpmc2,tmpn1,nnk)
+                use param, only: zero,small,one
+                use lmbm_sub, only: vdot,vneg,scalex,xdiffy,scdiff,xsumy,cwmaxv,rwaxv2,calq,copy,copy2
+                integer, intent(in), depend(gp), check(len(gp)==n) :: n=len(gp)
+                integer, intent(in) :: mc
+                integer, intent(inout), depend(cm), check(len(cm)-1==mcc) :: mcc=len(cm)-1
+                integer, intent(inout) :: inew
+                integer, intent(out) :: isr1
+                integer, intent(inout) :: iflag
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(d)==n) :: d
+                real(kind=8), dimension(n), intent(in) :: gp
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(ga)==n) :: ga
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(s)==n) :: s
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(u)==n) :: u
+                real(kind=8), dimension(n*(mcc+1)), intent(inout), depend(n,mcc), check(len(sm)==n*(mcc+1)) :: sm
+                real(kind=8), dimension(n*(mcc+1)), intent(inout), depend(n,mcc), check(len(um)==n*(mcc+1)) :: um
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(inout), depend(mcc), check(len(rm)==(mcc+2)*(mcc+1)/2) :: rm
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(inout), depend(mcc), check(len(umtum)==(mcc+2)*(mcc+1)/2) :: umtum
+                real(kind=8), dimension(mcc+1), intent(inout) :: cm
+                real(kind=8), dimension(mcc+1), intent(inout), depend(mcc), check(len(smtgp)==mcc+1) :: smtgp
+                real(kind=8), dimension(mcc+1), intent(inout), depend(mcc), check(len(umtgp)==mcc+1) :: umtgp
+                real(kind=8), intent(inout) :: gamma
+                real(kind=8), dimension(mcc+1), intent(out), depend(mcc), check(len(tmpmc1)==mcc+1) :: tmpmc1
+                real(kind=8), dimension(mcc+1), intent(out), depend(mcc), check(len(tmpmc2)==mcc+1) :: tmpmc2
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(tmpn1)==n) :: tmpn1
+                integer, intent(in) :: nnk
+            end subroutine dlsr1
+            subroutine indic1(mc,mcc,mcnew,inew,iold,iflag,iflag2,itype)
+                integer, intent(in) :: mc
+                integer, intent(in) :: mcc
+                integer, intent(out) :: mcnew
+                integer, intent(inout) :: inew
+                integer, intent(out) :: iold
+                integer, intent(inout) :: iflag
+                integer, intent(inout) :: iflag2
+                integer, intent(in) :: itype
+            end subroutine indic1
+            subroutine agbfgs(n,mc,mcc,inew,ibfgs,iflag,g,gp,ga,u,d,sm,um,rm,cm,umtum,alfn,alfv,gamma,ic,rho)
+                use param, only: zero,half,one
+                use lmbm_sub, only: symax,rwaxv2,trlieq,vdot
+                integer, intent(in), depend(g), check(len(g)==n) :: n=len(g)
+                integer, intent(in) :: mc
+                integer, intent(in), depend(cm), check(len(cm)-1==mcc) :: mcc=len(cm)-1
+                integer, intent(in) :: inew
+                integer, intent(in) :: ibfgs
+                integer, intent(inout) :: iflag
+                real(kind=8), dimension(n), intent(in) :: g
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(gp)==n) :: gp
+                real(kind=8), dimension(n), intent(out), depend(n), check(len(ga)==n) :: ga
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(u)==n) :: u
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(d)==n) :: d
+                real(kind=8), dimension(n*(mcc+1)), intent(in), depend(n,mcc), check(len(sm)==n*(mcc+1)) :: sm
+                real(kind=8), dimension(n*(mcc+1)), intent(in), depend(n,mcc), check(len(um)==n*(mcc+1)) :: um
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(in), depend(mcc), check(len(rm)==(mcc+2)*(mcc+1)/2) :: rm
+                real(kind=8), dimension(mcc + 1), intent(in) :: cm
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(in), depend(mcc), check(len(umtum)==(mcc+2)*(mcc+1)/2) :: umtum
+                real(kind=8), intent(in) :: alfn
+                real(kind=8), intent(out) :: alfv
+                real(kind=8), intent(in) :: gamma
+                integer, intent(in) :: ic
+                real(kind=8), intent(in) :: rho
+            end subroutine agbfgs
+            subroutine aggsr1(n,mc,mcc,inew,iflag,g,gp,ga,d,alfn,alfv,umtum,rm,gamma,smtgp,umtgp,smtga,umtga,sm,um,icn,rho)
+                use param, only: zero,one,small
+                use lmbm_sub, only: vdot,scalex,xsumy,xdiffy,scsum,scdiff,rwaxv2,cwmaxv,lineq,calq
+                integer, intent(in), depend(g), check(len(g)==n) :: n=len(g)
+                integer, intent(in) :: mc
+                integer, intent(in), depend(smtgp), check(len(smtgp)-1==mcc) :: mcc=len(smtgp)-1
+                integer, intent(in) :: inew
+                integer, intent(inout) :: iflag
+                real(kind=8), dimension(n), intent(in) :: g
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(gp)==n) :: gp
+                real(kind=8), dimension(n), intent(inout), depend(n) ,check(len(ga)==n) :: ga
+                real(kind=8), dimension(n), intent(in), depend(n), check(len(d)==n) :: d
+                real(kind=8), intent(in) :: alfn
+                real(kind=8), intent(inout) :: alfv
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(in), depend(mcc), check(len(umtum)==(mcc+2)*(mcc+1)/2) :: umtum
+                real(kind=8), dimension((mcc+2)*(mcc+1)/2), intent(in), depend(mcc), check(len(rm)==(mcc+2)*(mcc+1)/2) :: rm
+                real(kind=8), intent(in) :: gamma
+                real(kind=8), dimension(mcc+1), intent(in) :: smtgp
+                real(kind=8), dimension(mcc+1), intent(in), depend(mcc), check(len(umtgp)==mcc+1) :: umtgp
+                real(kind=8), dimension(mcc+1), intent(in), depend(mcc), check(len(smtga)==mcc+1) :: smtga
+                real(kind=8), dimension(mcc+1), intent(in), depend(mcc), check(len(umtga)==mcc+1) :: umtga
+                real(kind=8), dimension(n*(mcc+1)), intent(in), depend(n,mcc), check(len(sm)==n*(mcc+1)) :: sm
+                real(kind=8), dimension(n*(mcc+1)), intent(in), depend(n,mcc), check(len(um)==n*(mcc+1)) :: um
+                integer, intent(in) :: icn
+                real(kind=8), intent(in) :: rho
+            end subroutine aggsr1
+            subroutine lmbm(n,x,fu,func,lopa,vali,g,subgra,mc,nit,nfe,nge,iterm)
+                use lmbm__user__routines
+                use lmbm_sub, only: xdiffy,copy2,copy,scsum,vdot
+                use initializat, only: epsl,mtesf,eta,na,mfe,mit,tolg,xmax,iscale,tolb,mcu,tolf2,tolf,tolg2
+                use param, only: small,large,zero,one,half
+                integer, intent(inout), depend(x), check(len(x)==n) :: n=len(x)
+                real(kind=8), dimension(n), intent(inout) :: x
+                real(kind=8), intent(inout) :: fu
+                external func
+                real(kind=8), intent(inout) :: lopa
+                external vali
+                real(kind=8), dimension(n), intent(inout), depend(n), check(len(g)==n) :: g
+                external subgra
+                integer, intent(inout) :: mc
+                integer, intent(out) :: nit
+                integer, intent(out) :: nfe
+                integer, intent(out) :: nge
+                integer, intent(out) :: iterm
+            end subroutine lmbm
+        end module lmbm_mod
+    end interface
+end python module lmbmprogram
+
+! This file was auto-generated with f2py (version:2).
+! See http://cens.ioc.ee/projects/f2py2e/
