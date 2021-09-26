@@ -7,3 +7,5 @@ Pairwise interaction prediction problems are closely related to drug-target prob
 The method has been introduced in the article: 
 
 Special thanks to my colleagues Antti Airola, Napsu Karmitsa and Tapio Pahikkala for co-operation and the development of the methods and techniques utilized in this work.
+
+Note. Use f2py to generate lmbmprogram.so file from the lmbmprogram.f95 and lmbmprogram.pyf files.
