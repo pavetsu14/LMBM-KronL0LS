@@ -9,8 +9,11 @@ The method has been introduced in the article: TO BE PUBLISHED
 Special thanks to Antti Airola, Napsu Karmitsa and Tapio Pahikkala for co-operation and the development of the methods and techniques utilized in this work. Great inspiration was derived from the article by Airola et al (2018).
 
 **Note.** Use f2py to generate lmbmprogram.so package from the lmbmprogram.f95 and lmbmprogram.pyf files. You can find instructions for doing this e.g. from
+
 https://numpy.org/devdocs/f2py/usage.html
+
 https://www.numfys.net/howto/F2PY/
+
 https://jiffyclub.github.io/numpy/user/c-info.python-as-glue.html
 
 ## Data
