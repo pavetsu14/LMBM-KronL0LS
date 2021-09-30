@@ -20,8 +20,8 @@ REAL(KIND=prec), PARAMETER, PUBLIC :: &
 zero    = 0.0_prec,    & ! 
 half    = 0.5_prec,    & ! 
 one     = 1.0_prec,    & ! 
-large   = 3.40282347*10.**38,  & ! HUGE(zero) ja seuraavalla rivilla TINY(zero)
-small   = 1.17549435*10.**(-38)  ! Maaritetty erikseen
+large   = 3.40282347*10.**38,  & !
+small   = 1.17549435*10.**(-38)  !
 
 END MODULE param
 
@@ -44,17 +44,17 @@ REAL(KIND=prec), SAVE :: &
 tolf  = 1.0E-4_prec, &  ! Tolerance for change of function values (default = 1.0E-8), pie 1.0E-7 reg, OLLUT 1.0e-4
 tolf2 = -1.0_prec, & ! Second tolerance for change of function values. If tolf2 < 0 the the parameter and the corresponding termination criterion will be ignored. If tolf2 = 0 the default value 1.0E+4 will be used.
 tolb  = -large + small, & ! Tolerance for the function value (default = -large).
-tolg  = 1.0E-4_prec, &  ! Tolerance for the first termination criterion (default = 1.0E-6). kannattaa kokeilla viela pienempaa, pie 1.0E-7 reg OLLUT 1.0e-4
-tolg2 = 1.0E-4_prec, &  ! Tolerance for the second termination criterion (default = tolg). tai sitten pienentaa tata, pie 1.0e-6 reg OLLUT 1.0e-4
-eta   = 0.5_prec, &  ! Distance measure parameter, eta >= 0. If eta < 0  the default value 0.5 will be used. pie 0.5 reg
-epsl  = 0.24_prec, &  ! Line search parameter, 0 < epsl < 0.25 (default = 1.0E-4). kannattaa ehka pienentaa, pie 0.24 reg
-xmax  = 1000_prec     ! Maximum stepsize, 1 < XMAX (default = 1.5). voi vaikuttaa 2-1000, pie 1000 reg RATKAISEVA 2 svm pienille ongelmille
+tolg  = 1.0E-4_prec, &  ! Tolerance for the first termination criterion (default = 1.0E-6)
+tolg2 = 1.0E-4_prec, &  ! Tolerance for the second termination criterion (default = tolg)
+eta   = 0.5_prec, &  ! Distance measure parameter, eta >= 0. If eta < 0  the default value 0.5 will be used.
+epsl  = 0.24_prec, &  ! Line search parameter, 0 < epsl < 0.25 (default = 1.0E-4).
+xmax  = 1000_prec     ! Maximum stepsize, 1 < XMAX (default = 1.5).
 
 ! Integer parameters (if parameter value <= 0.0 the default value of the parameter will be used).
 INTEGER, SAVE :: &
-mit    = 10000, &      ! Maximun number of iterations (default = 10000). 500 ihan hyva, OLLUT 10 000!
+mit    = 10000, &      ! Maximun number of iterations (default = 10000).
 mfe    = 500000000, &  ! Maximun number of function evaluations (default = n*mit).
-mtesf  = 10, &         ! Maximum number of iterations with changes of function values smaller than tolf (default = 10). OLLUT 50, NOPEUTTAMISEKSI 20
+mtesf  = 10, &         ! Maximum number of iterations with changes of function values smaller than tolf (default = 10).
 iscale = 0             ! Selection of the scaling: 0  - Scaling at every iteration with STU/UTU (default). 1  - Scaling at every iteration with STS/STU. 2  - Interval scaling with STU/UTU. 3  - Interval scaling with STS/STU. 4  - Preliminary scaling with STU/UTU. 5  - Preliminary scaling with STS/STU. 6  - No scaling.
 
 END MODULE initializat
@@ -1350,7 +1350,7 @@ utu       ! utu = trans(u)*u.
 REAL(KIND=prec) :: &
 spar      ! Scaling parameter.
 INTEGER, INTENT(IN) :: & 
-mcc, &    ! Current number of stored corrections. SEURAAVALLA RIVILLA OLI ALUNPERIN method, & ! Selection of the method: 0  - Limited memory bundle method. 1  - L-BFGS bundle method.
+mcc, &    ! Current number of stored corrections.
 iscale    ! Selection of the scaling: 0  - Scaling at every iteration with STU/UTU. 1  - Scaling at every iteration with STS/STU. 2  - Interval scaling with STU/UTU. 3  - Interval scaling with STS/STU. 4  - Preliminary scaling with STU/UTU. 5  - Preliminary scaling with STS/STU. 6  - No scaling.      
 
 ! Intrinsic functions
@@ -1461,7 +1461,7 @@ REAL(KIND=prec), INTENT(INOUT) :: &
 gamma     ! Scaling parameter.
 INTEGER, INTENT(IN) :: &
 n, &      ! Number of variables.
-mc, &     ! Declared number of stored corrections. SEURAAVALLA RIVILLA OLI ALUNPERIN method, & ! Selection of the method: 0  - Limited memory bundle method. 1  - L-BFGS bundle method.
+mc, &     ! Declared number of stored corrections.
 iscale    ! Selection of the scaling: 0  - Scaling at every iteration with STU/UTU. 1  - Scaling at every iteration with STS/STU. 2  - Interval scaling with STU/UTU. 3  - Interval scaling with STS/STU. 4  - Preliminary scaling with STU/UTU. 5  - Preliminary scaling with STS/STU. 6  - No scaling.      
 INTEGER, INTENT(INOUT) :: &
 mcc, &    ! Current number of stored corrections.
