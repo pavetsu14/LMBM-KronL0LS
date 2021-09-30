@@ -19,8 +19,6 @@ Special thanks to Antti Airola, Napsu Karmitsa and Tapio Pahikkala for co-operat
 
 Note. Use f2py to generate lmbmprogram.so package from the lmbmprogram.f95 and lmbmprogram.pyf files. You can find instructions for doing this e.g. from
 https://jiffyclub.github.io/numpy/user/c-info.python-as-glue.html
-or
-https://f2py-users.cens.ioc.narkive.com/c3a0uNn9/wrapping-large-fortran-code-with-f2py
 
 
 References:
