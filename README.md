@@ -52,7 +52,7 @@ with the 2D Tanimoto coefficients and the target-target sequence similarities co
 
 In practice, if you utilize functions in load_split_data.py, please use load_metz function.
 
-In addition to the Ki data, the codes for generating Checkerboard data (in generate_nonlinear_data.py file, developed by Antti Airola) have been added to the repository in order to offer different type of data, and most importantly, some data with which running the method is **fast**.
+In addition to the Ki data, the codes for generating checkerboard data (in generate_nonlinear_data.py file, developed by Antti Airola) have been added to the repository in order to offer different type of data, and most importantly, some data with which running the method is **fast**.
 
 ## References:
 
