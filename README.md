@@ -14,7 +14,7 @@ the development of the methods and techniques utilized in this work.
 Pairwise interaction prediction problems are closely related to drug-target prediction problems and thus the developed method
 might be useful in the field of drug discovery.
 
-The method has been introduced in the article: TO BE PUBLISHED
+The method has been introduced in the article: REVISION SUBMITTED TO IEEE ACCESS 11.11.2022
 
 **Abstract** Large time, money and resource costs have motivated researchers to constantly develop innovative technologies
 for the exploitation of new drugs. However, current knowledge about the drug–target space is limited. In this paper, a new
@@ -41,15 +41,15 @@ https://jiffyclub.github.io/numpy/user/c-info.python-as-glue.html
 
 ## Data
 
-1. The codes for generating Checkerboard data (in the generate_nonlinear_data.py file) have been developed by Antti Airola.
-2. Ki data is related to the experiments done with the affinities found by Metz et al (2011).
-
-Ki data has been applied before for the real-valued drug-target binding affinity prediction experiments done in the
-article by Pahikkala et al (2015).
+This repository does not contain all the data used for testing the method. However, we included one of the utilized real-world data sets in here so you can test the method without the need to worry about the data availability. Ki data is related to the experiments done with the affinities found by Metz et al (2011). Ki data has been applied before for the real-valued drug-target binding affinity prediction experiments done in the article by Pahikkala et al (2015).
 
 Ki data is available both in http://staff.cs.utu.fi/~aatapa/data/DrugTarget/ and in this repository through three separate
 text files containing the drug-target interaction affinities, the drug-drug structural fingerprint similarities computed
 with the 2D Tanimoto coefficients and the target-target sequence similarities computed with the normalized Smith-Waterman (SW) score.
+
+In practice, if you utilize functions in load_split_data.py, please use load_metz function.
+
+In addition to the Ki data, the codes for generating Checkerboard data (in generate_nonlinear_data.py file, developed by Antti Airola) have been added to the repository in order to offer different type of data, and most importantly, some data with which running the method is **fast**.
 
 ## References:
 
