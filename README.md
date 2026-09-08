@@ -15,7 +15,7 @@ the development of the methods and techniques utilized in this work and to Riikk
 Pairwise interaction prediction problems are closely related to drug-target prediction problems and thus the developed method
 might be useful in the field of drug discovery.
 
-The method has been introduced in the article: REVISION SUBMITTED TO IEEE ACCESS 11.11.2022
+The method has been introduced in the [here](https://doi.org/10.1080/10556788.2023.2280784).
 
 **Abstract** Large time, money and resource costs have motivated researchers to constantly develop innovative technologies
 for the exploitation of new drugs. However, current knowledge about the drug–target space is limited and the existing
